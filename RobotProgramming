@@ -1,0 +1,12 @@
+from controller import Robot
+import sys
+
+target = 11.99
+
+robot = Robot()
+
+print("Move the motors of the Thymio II to position " + str(target) + ".")
+sys.stderr.write("This is a sample error message.\n")
+
+robot.getMotor("motor.left").setPosition(target)
+robot.getMotor("motor.right").setPosition(target)
