@@ -1,0 +1,58 @@
+from controller import Robot
+from controller import Compass
+
+robot = Robot()
+
+timeStep = int(robot.getBasicTimeStep())
+
+compass = robot.getCompass("compass")
+compass.enable(timeStep)
+
+maxMotorVelocity = 9.53  
+distanceSensorCalibrationConstant = 360 
+
+leftMotor = robot.getMotor("motor.left")
+rightMotor = robot.getMotor("motor.right")
+
+outerLeftSensor = robot.getDistanceSensor("prox.horizontal.0")
+centralLeftSensor = robot.getDistanceSensor("prox.horizontal.1")
+centralSensor = robot.getDistanceSensor("prox.horizontal.2")
+centralRightSensor = robot.getDistanceSensor("prox.horizontal.3")
+outerRightSensor = robot.getDistanceSensor("prox.horizontal.4")
+
+outerLeftSensor.enable(timeStep)
+centralLeftSensor.enable(timeStep)
+centralSensor.enable(timeStep)
+centralRightSensor.enable(timeStep)
+outerRightSensor.enable(timeStep)
+
+leftMotor.setPosition(float('inf'))
+rightMotor.setPosition(float('inf'))
+
+initialVelocity = 0.95 * maxMotorVelocity # 0.7 # 90%
+
+leftMotor.setVelocity(initialVelocity)
+rightMotor.setVelocity(initialVelocity)
+
+
+while robot.step(timeStep) != -1:
+    # Read values from four distance sensors and calibrate.
+    outerLeftSensorValue = outerLeftSensor.getValue() / distanceSensorCalibrationConstant
+    centralLeftSensorValue = centralLeftSensor.getValue() / distanceSensorCalibrationConstant
+    centralSensorValue = centralSensor.getValue() / distanceSensorCalibrationConstant
+    centralRightSensorValue = centralRightSensor.getValue() / distanceSensorCalibrationConstant
+    outerRightSensorValue = outerRightSensor.getValue() / distanceSensorCalibrationConstant
+    
+    values = compass.getValues()    
+    _in = 1  # jest ok 2,  prawie 1
+    _ext = 1  # jest ok 2, prawie 1
+    _lsens  = (outerLeftSensorValue/_ext + centralLeftSensorValue*_in)
+    _rsens = (outerRightSensorValue/_ext + centralRightSensorValue*_in) - centralSensorValue*_in
+    
+    if _lsens == 0 and _rsens == 0:
+        _lsens = _lsens + (values[0]**2)/values[0]
+        
+    _left = max(-9.53, min(initialVelocity - _rsens , maxMotorVelocity))
+    _right = max(-9.53, min(initialVelocity - _lsens  , maxMotorVelocity))
+    leftMotor.setVelocity(_left)
+    rightMotor.setVelocity(_right)
