@@ -1,0 +1,74 @@
+from controller import Robot
+
+robot = Robot()
+leftWheel = robot.getMotor('left wheel')
+rightWheel = robot.getMotor('right wheel')
+
+rightWheelSensor = robot.getPositionSensor('right wheel sensor')
+rightWheelSensor.enable(1) # Refreshes the sensor every 16ms.
+res = rightWheelSensor.getValue()
+
+
+for i in range(0, 4):
+    if(i == 0):
+        leftWheel.setPosition(1000)
+        rightWheel.setPosition(1000)
+        res=0
+        while( res <= 20.42):
+            robot.step(1)
+            res = round(rightWheelSensor.getValue(),3)
+            
+        leftWheel.setPosition(1000)
+        rightWheel.setPosition(-1000)
+        while(res>= 18.03):
+            robot.step(1)
+            res = round(rightWheelSensor.getValue(),3)
+        
+    if(i == 1):
+        leftWheel.setPosition(1000)
+        rightWheel.setPosition(1000)
+        rightWheel.setVelocity(5.19)
+        res = round(rightWheelSensor.getValue(),3)
+        while( res <= 38.75):
+            robot.step(1)
+            res = round(rightWheelSensor.getValue(),3)
+        print(res)
+        leftWheel.setPosition(1000)
+        rightWheel.setPosition(-1000)
+        
+        while(res >= 36.42):
+            robot.step(1)
+            res = round(rightWheelSensor.getValue(),3)
+
+    if(i == 2):
+        leftWheel.setPosition(1000)
+        rightWheel.setPosition(1000)
+        rightWheel.setVelocity(5.22)
+        res = round(rightWheelSensor.getValue(),3)
+        while( res <= 57.09):
+            robot.step(1)
+            res = round(rightWheelSensor.getValue(),3)
+        leftWheel.setPosition(1000)
+        rightWheel.setPosition(-1000)
+        
+        while(res >= 54.8):
+            robot.step(1)
+            res = round(rightWheelSensor.getValue(),3)
+    
+    
+    if(i == 3):
+        leftWheel.setPosition(1000)
+        rightWheel.setPosition(1000)
+        res = round(rightWheelSensor.getValue(),3)
+        while( res <= 74.65):
+            robot.step(1)
+            res = round(rightWheelSensor.getValue(),3)
+            if(res >= 70):
+                rightWheel.setVelocity(5.0)
+                leftWheel.setVelocity(5.0)    
+        robot.step(180)
+        leftWheel.setPosition(1000)
+        rightWheel.setPosition(-1000)
+        
+leftWheel.setVelocity(0)
+rightWheel.setVelocity(0)
