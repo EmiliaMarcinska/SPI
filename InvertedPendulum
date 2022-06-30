@@ -1,0 +1,58 @@
+from controller import Robot
+import math
+
+robot = Robot()
+timestep = int(robot.getBasicTimeStep())
+
+ps = robot.getPositionSensor('pendulum sensor')
+ps.enable(timestep)
+leftMotor = robot.getMotor("left wheel motor")
+rightMotor = robot.getMotor("right wheel motor")
+leftMotor.setPosition(float('+inf'))
+rightMotor.setPosition(float('+inf'))
+leftMotor.setVelocity(0.0)
+rightMotor.setVelocity(0.0)
+maxSpeed = min(rightMotor.getMaxVelocity(), leftMotor.getMaxVelocity())
+
+KP = 120
+KI = 93 
+KD = 0    
+integral = 0.0
+previous_position = 0.0
+
+leftMotor.setVelocity(0.0)
+rightMotor.setVelocity(0.0)
+counter =0
+while robot.step(timestep) != -1:
+    position = ps.getValue()
+    
+    if(counter == 500):
+        counter=501
+    else:
+        counter = counter +1
+    
+    if(counter ==12500):
+        print("\n\n\n1st Change!\n\n\n")
+        KP = 120
+        KI =110
+    if(counter ==13000): 
+        KP = 135
+        KI = 115 #from before
+              
+    if math.fabs(position) > math.pi * 0.5:
+        leftMotor.setVelocity(0.0)
+        rightMotor.setVelocity(0.0)
+        time = robot.getTime()
+        print("Time:%-24.3f" % time)
+        break
+
+    integral = integral + (position + previous_position) * 0.5 / timestep
+    derivative = (position - previous_position) / timestep
+    speed = KP * position + KI * integral + KD * derivative
+    if speed > maxSpeed:
+        speed = maxSpeed
+    elif speed < -maxSpeed:
+        speed = -maxSpeed
+    leftMotor.setVelocity(-speed)
+    rightMotor.setVelocity(-speed)
+    previous_position = position
